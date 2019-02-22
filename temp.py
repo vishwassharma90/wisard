@@ -27,24 +27,36 @@ def discriminator():
     tt=0
     discriminator = []
     accumulated_pos = []
+    my_list = list(range(0,784))
     for i in range(10):  #10 
         #print(1)
         ram = []
-        
+        #n_0 = [1990]
+#        taken = []
+        random.shuffle(my_list)
+#        n_0 =[]
         for j in range((int)((nodes))): #98    
              
             total_pos = []
             total_pos1 = []
             positions = []
-            for k in range(no_of_rand_pix_selec):  #8
-                n_0 = [0]                               # this is wrong as for every ram in a discriminator this will reset
-                n = random.randint(1, input_size)                     #and we want it to reset after 98 ram of one discriminator
-                                                                          #but computer hange if i do it. so check later
-                for i in n_0:
-                    if n != i:
-                        positions.append(n)    
             
-                n_0.append(n)
+            #for k in range(no_of_rand_pix_selec):  #8
+            positions = my_list[j*8:j*8+8]
+            #print(positions)
+#            for k in range(no_of_rand_pix_selec):  #8
+#                                               # this is wrong as for every ram in a discriminator this will reset
+#                n = random.randint(1, input_size)                     #and we want it to reset after 98 ram of one discriminator
+#                                                                          #but computer hange if i do it. so check later
+#                for i in n_0:
+#                    if n != i:
+#                        positions.append(n)    
+            
+#            n_0.append(n)
+#            print(n_0)
+#                if taken.count(n) == 0:
+#                    positions.append(n)                                                          
+#                taken.append(n)                                                          
                 
             #if tt < 1:
             #    print(positions)
@@ -82,6 +94,7 @@ def train_discriminator_with_bleaching(d,pos,x_train, y_train):
     lable = y_train    
     
     for i,image in enumerate(images):
+        #print(image)
         l = lable[i]
         num = l  #have to check how to do it after i do the preprocessing part and see the dataset lable type
         all_ram_of_selected_discriminator = d[num]
@@ -107,7 +120,7 @@ def train_discriminator_with_bleaching(d,pos,x_train, y_train):
             #print(n)
             
             address_of_that_ram = concatenate_list_data(n)
-            print(address_of_that_ram)
+            #print(address_of_that_ram)
             #print(threshold)
             
             if threshold >= 1:                  #refer above comment
@@ -116,25 +129,75 @@ def train_discriminator_with_bleaching(d,pos,x_train, y_train):
                     #print(key)
                     if key == address_of_that_ram:
                         r[0][key] += 1
+                        #print(key)
+                        #print(index)
                         #print(2)
 #                    r[address_of_that_ram] += 1
 #                    print(address_of_that_ram)
 #                    print(r[address_of_that_ram])
             else:
                 print(0)
-            print(x,r)
+            #print(x,r[0])
             #address_of_one_ram = ','.join(n)
             #print(address_of_one_ram)
     
     return 1
 
-def test_discriminator_with_bleaching(d,acc_pos,x_test,y_test):
+def test_discriminator_with_bleaching(d,pos,x_test,y_test):
+    right = 0
+    wrong = 0
+    images = x_test
+    lable = y_test
+    
+    for i,image in enumerate(images):
+        actual_lable = lable[i]
+        #sum_of_ram_output = []
+        #print('im',image)
+        total_sum=[]
+        for index,dis in enumerate(d):
+            t_ratina = pos[(98*index):(98*index+98)]
+            
+            sum_of_ram_output = 0
+            for x,r in enumerate(dis):
+                ratina_for_one_ram = t_ratina[x]
+                
+                n = []                                                                
+                for pix in ratina_for_one_ram:
+                    if image[(pix-1)]>=1:
+                        n.append(1)
+                    else:
+                        n.append(0)
+                        #print(n)
+            
+                address_of_that_ram = concatenate_list_data(n)
+                #print(address_of_that_ram)
+                
+                
+                for index,key in enumerate(r[0]):
+                    if key == address_of_that_ram and r[0][key]>=1:
+                        #print(111)
+                        #print(key,r[0][key])
+                        sum_of_ram_output += 1
+                        
+                
+            total_sum.append(sum_of_ram_output)
+        print(total_sum)    
+        if max(total_sum) >= 50:
+            index_of_dis = total_sum.index(max(total_sum))
+            if index_of_dis == actual_lable:
+                right += 1
+                #print(1)
+            else:
+                wrong += 1
+                #print(0)
+        
+        else:
+            print("result is wrong")
+            right = 0
+            wrong = 1
     
     
-    
-    
-    
-    return 1
+    return right,wrong
 
 
 
@@ -154,19 +217,28 @@ if __name__ == "__main__":
     
     x_train1 = np.random.randint(10, size=784)
     x_train = [x_train1]
-    y_train = [0,1,2,3,4,5,6,7,8,9]    
+    y_train = [0]    
+    #print(x_train[0])
     
     
     x_test1 = np.random.randint(10, size=784)
-    x_test = [x_test1]
-    y_test = [0,1,2,3,4,5,6,7,8,9]
+    #print(x_test1)
+#    x_test = [np.zeros(784)]                       #use this for accuracy = 0 check
+    x_test = [x_train1]                             #use this for accuracy = 100 check
+    y_test = [0]
+    #print(x_test[0],x_test1)
     
-    
-    d = []
+    #d = []
     d, acc_pos = discriminator()
     #print(d[0][0])
     #print(acc_pos)
     #print(x_train)
     train_the_network = train_discriminator_with_bleaching(d,acc_pos,x_train,y_train)
     #print(view)
-    test_the_network = test_discriminator_with_bleaching(d,acc_pos,x_test,y_test)       
+    #print(x_test[1])
+    #print(d[0][0])
+    right,wrong = test_discriminator_with_bleaching(d,acc_pos,x_test,y_test)
+    
+    accuracy = ((right)/(right+wrong))*100
+    print("accuracy by testing the model =",accuracy)
+       
