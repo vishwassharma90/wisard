@@ -6,7 +6,7 @@ This is a temporary script file.
 """
 import struct
 import time
-from numba import njit,jit,vectorize
+from numba import njit,jit,vectorize,autojit
 from numba import cuda
 import numpy as np
 #import struct
@@ -200,111 +200,65 @@ def test1(d,pos,x_test,y_test):
     wrong = 0
     images = x_test
     lable = y_test
-    non_rec = 0
     
     
     for i in range(len(images)):
         image = images[i]
         actual_lable = lable[i]
      
-        total_sum=[]
-#        right, wrong = test2(image,actual_lable,total_sum,d,pos,right,wrong,non_rec)
-        
-        for index in range(10):
-            dis = d[int(index)]
-            t_ratina = pos[(98*index):(98*index+98)]
-            
-            sum_of_ram_output = 0
-            
-            
-            for i in range(98):
-                part = dis[(256*i):(256*i+256)]
-                ratina_for_one_ram = t_ratina[i]
-                
-                n = []                                                                
-                for pix in ratina_for_one_ram:
-                    if image[(pix-1)]>=1:
-                        n.append(1)
-                    else:
-                        n.append(0)
-                        #print(n)
-            
-                address_of_that_ram = (int)(conc_list(n))
-                
-                for key in range(len(part)):
-                    index = part[key]
-                    if index[0] == address_of_that_ram and index[1]>=1:
-                        sum_of_ram_output += 1
-                
-            total_sum.append(sum_of_ram_output)        
-        
-        
-        
-        
-        if max(total_sum) >= 1:
-            index_of_dis = total_sum.index(max(total_sum))
-            if index_of_dis == actual_lable:
-                right += 1
-                #print(1)
-            else:
-                wrong += 1
-                #print(0)
-           
-        else:
-            #wrong += 1
-            non_rec += 1    
-            
-            
-    
-    print(1)    
-    print("non recognized images = ", non_rec)
-        
-    
-    return right,wrong
+        total_sum = test2(pos,d,image)
+     
 
-#@njit
-def test2(image,actual_lable,total_sum,d,pos,right,wrong,non_rec):
-    for index in range(len(d)):
-        dis = d[index]
-        t_ratina = pos[(98*index):(98*index+98)]
-        
-        sum_of_ram_output = 0
-        
-        
-        for i in range(98):
-            right,wrong = test3(i,dis,t_ratina,image,sum_of_ram_output,total_sum,non_rec,actual_lable,right,wrong)
-    return right,wrong        
-            
-def test3(i,dis,t_ratina,image,sum_of_ram_output,total_sum,non_rec,actual_lable,right,wrong):
-    part = dis[(256*i):(256*i+256)]
-    ratina_for_one_ram = t_ratina[i]
-    
-    n = []                                                                
-    for pix in ratina_for_one_ram:
-        if image[(pix-1)]>=1:
-            n.append(1)
-        else:
-            n.append(0)
-            #print(n)
-    
-    address_of_that_ram = (int)(conc_list(n))
-            
-    for key in range(len(part)):
-        index = part[key]
-        if index[0] == address_of_that_ram and index[1]>=1:
-            sum_of_ram_output += 1
-                    
-    total_sum.append(sum_of_ram_output)
-    if max(total_sum) >= 1:
-        index_of_dis = total_sum.index(max(total_sum))
+
+        max_sum = 0
+        idx = 0
+        for i in range(len(total_sum)):
+            if max_sum < total_sum[i]:
+                max_sum = total_sum[i]
+                idx = i
+        index_of_dis = idx
         if index_of_dis == actual_lable:
             right += 1
             #print(1)
         else:
             wrong += 1
-    else:
-        non_rec += 1
+            #print(0)     
+            
+    print(1)
     return right,wrong
+
+
+
+@njit
+def test2(pos,d,image):
+    total_sum=[]
+    for ix in range(10):
+        t_ratina = pos[(98*ix):(98*ix+98)]
+        sum_of_ram_output = 0
+        dis = d[ix]
+        
+        for i in range(98):
+            part = dis[(256*i):(256*i+256)]
+            ratina_for_one_ram = t_ratina[i]
+            
+            n = []                                                                
+            for pix in ratina_for_one_ram:
+                if image[(pix-1)]>=1:
+                    n.append(1)
+                else:
+                    n.append(0)
+                #print(n)
+                
+            address_of_that_ram = (int)(conc_list(n))
+                
+            for key in range(len(part)):
+                prt = part[key]
+                if prt[0] == address_of_that_ram and prt[1]>=1:
+                    sum_of_ram_output += 1
+            
+        total_sum.append(sum_of_ram_output)        
+    return total_sum
+    
 
 if __name__ == "__main__":
 
@@ -383,7 +337,7 @@ if __name__ == "__main__":
     
     
     starttrain = time.time()
-    train_discriminator_with_bleaching(d,acc_pos,px_train[0:1000],py_train[0:1000])
+    train_discriminator_with_bleaching(d,acc_pos,px_train[0:5000],py_train[0:5000])
 #    cuda.synchronize()
     endtrain = time.time()
     print("time train = ",endtrain - starttrain)
@@ -401,7 +355,7 @@ if __name__ == "__main__":
     
     
     starttest = time.time()
-    right,wrong = test1(d,acc_pos,px_test[0:100],py_test[0:100])
+    right,wrong = test1(d,acc_pos,px_test[0:1000],py_test[0:1000])
 #    right,wrong = test2(d,acc_pos,px_test[0:100],py_test[0:100])
 #    right,wrong = test3(d,acc_pos,px_test[0:100],py_test[0:100])
 #    right,wrong = test4(d,acc_pos,px_test[0:100],py_test[0:100])
