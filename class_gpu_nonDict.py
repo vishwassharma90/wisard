@@ -195,13 +195,13 @@ if __name__ == "__main__":
     
     
     starttrain = time.time()
-    w.train(d,acc_pos,px_train[0:60000],py_train[0:60000])
+    w.train(d,acc_pos,px_train[0:5000],py_train[0:5000])
     endtrain = time.time()
     print("time train = ",endtrain - starttrain)
     
     
     starttest = time.time()
-    right,wrong = w.test(d,acc_pos,px_test[0:10000],py_test[0:10000])
+    right,wrong = w.test(d,acc_pos,px_test[0:1000],py_test[0:1000])
     endtest = time.time()
     print("time test = ",endtest - starttest)
     

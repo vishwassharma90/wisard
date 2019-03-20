@@ -140,7 +140,7 @@ class WiSARD:
         return discriminator, accumulated_pos
         
     #@jit        
-    def train_discriminator_with_bleaching(self,d,pos,x_train, y_train):
+    def train(self,d,pos,x_train, y_train):
         
         images = x_train
         lable = y_train    
@@ -195,7 +195,7 @@ class WiSARD:
     
         #return 1
         #@jit
-    def test_discriminator_with_bleaching(self,d,pos,x_test,y_test):
+    def test(self,d,pos,x_test,y_test):
         right = 0
         wrong = 0
         images = x_test
@@ -317,14 +317,14 @@ if __name__ == "__main__":
 #    print(px_test[0].shape)
     
     starttrain = time.time()
-    train_the_network = w.train_discriminator_with_bleaching(d,acc_pos,px_train[0:1000],py_train[0:1000])
+    train_the_network = w.train(d,acc_pos,px_train[0:5000],py_train[0:5000])
     endtrain = time.time()
     print("time train = ",endtrain - starttrain)
     #print(view)
     #print(x_test[1])
     #print(d[0][0])
     starttest = time.time()
-    right,wrong = w.test_discriminator_with_bleaching(d,acc_pos,px_test[0:100],py_test[0:100])
+    right,wrong = w.test(d,acc_pos,px_test[0:1000],py_test[0:1000])
     endtest = time.time()
     print("time test = ",endtest - starttest)
     print("number of right result = ",right)

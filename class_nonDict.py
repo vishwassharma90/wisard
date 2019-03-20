@@ -196,14 +196,14 @@ if __name__ == "__main__":
     #w.discriminator()
     
     starttrain = time.time()
-    w.train(d,acc_pos,px_train[0:1000],py_train[0:1000])
+    w.train(d,acc_pos,px_train[0:5000],py_train[0:5000])
     #w.train_discriminator_with_bleaching(px_train[0:1000],py_train[0:1000])
     endtrain = time.time()
     print("time train = ",endtrain - starttrain)
     
     
     starttest = time.time()
-    right,wrong = w.test(d,acc_pos,px_test[0:100],py_test[0:100])
+    right,wrong = w.test(d,acc_pos,px_test[0:1000],py_test[0:1000])
     #right,wrong = w.test(px_test[0:100],py_test[0:100])
     endtest = time.time()
     print("time test = ",endtest - starttest)
