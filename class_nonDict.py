@@ -92,7 +92,7 @@ class WiSARD:
         
     
 
-    def train_discriminator_with_bleaching(self,d,pos,x_train, y_train):
+    def train(self,d,pos,x_train, y_train):
         
         images = x_train
         lable = y_train    
@@ -196,7 +196,7 @@ if __name__ == "__main__":
     #w.discriminator()
     
     starttrain = time.time()
-    w.train_discriminator_with_bleaching(d,acc_pos,px_train[0:1000],py_train[0:1000])
+    w.train(d,acc_pos,px_train[0:1000],py_train[0:1000])
     #w.train_discriminator_with_bleaching(px_train[0:1000],py_train[0:1000])
     endtrain = time.time()
     print("time train = ",endtrain - starttrain)
